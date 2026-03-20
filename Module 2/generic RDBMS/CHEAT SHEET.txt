@@ -1,0 +1,203 @@
+SQL CHEAT SHEET – TIMESHEET SYSTEM (SQL SERVER)
+
+--------------------------------------------------
+1. BASIC STRUCTURE
+--------------------------------------------------
+SELECT columns
+FROM table
+JOIN table2 ON condition
+WHERE condition
+GROUP BY columns
+HAVING condition
+ORDER BY columns;
+
+Logical order:
+1. FROM / JOIN
+2. WHERE
+3. GROUP BY
+4. HAVING
+5. SELECT
+6. ORDER BY
+
+--------------------------------------------------
+2. SELECT
+--------------------------------------------------
+SELECT nume, mail
+FROM hr.Angajat;
+
+Aliases:
+SELECT nume AS nume_angajat
+FROM hr.Angajat;
+
+--------------------------------------------------
+3. WHERE / FILTERING
+--------------------------------------------------
+WHERE nume = 'Ion'
+WHERE ore > 2
+WHERE dataPontaj = '2025-05-07'
+
+LIKE:
+WHERE nume LIKE 'I%'
+WHERE mail LIKE '%@%'
+
+--------------------------------------------------
+4. JOIN TYPES
+--------------------------------------------------
+INNER JOIN:
+SELECT *
+FROM A
+JOIN B ON A.id = B.id;
+
+LEFT JOIN:
+SELECT *
+FROM A
+LEFT JOIN B ON A.id = B.id;
+
+RIGHT JOIN:
+SELECT *
+FROM A
+RIGHT JOIN B ON A.id = B.id;
+
+FULL JOIN:
+SELECT *
+FROM A
+FULL JOIN B ON A.id = B.id;
+
+--------------------------------------------------
+5. AGGREGATE FUNCTIONS
+--------------------------------------------------
+SUM(), AVG(), COUNT(), MAX(), MIN()
+
+SELECT SUM(ore), AVG(ore), COUNT(*)
+FROM work.TimesheetEntry;
+
+--------------------------------------------------
+6. GROUP BY
+--------------------------------------------------
+SELECT a.nume, SUM(e.ore)
+FROM ...
+GROUP BY a.nume;
+
+--------------------------------------------------
+7. HAVING
+--------------------------------------------------
+SELECT a.nume, SUM(e.ore)
+FROM ...
+GROUP BY a.nume
+HAVING SUM(e.ore) > 8;
+
+--------------------------------------------------
+8. ORDER BY
+--------------------------------------------------
+ORDER BY ore DESC
+ORDER BY dataPontaj ASC, startTime ASC
+
+--------------------------------------------------
+9. DISTINCT
+--------------------------------------------------
+SELECT DISTINCT idProiect
+FROM work.TimesheetEntry;
+
+--------------------------------------------------
+10. ANALYTIC FUNCTIONS
+--------------------------------------------------
+SUM(ore) OVER (PARTITION BY idAngajat)
+
+SUM(ore) OVER (
+  PARTITION BY idAngajat
+  ORDER BY dataPontaj
+)
+
+LAG(ore) OVER (...)
+
+--------------------------------------------------
+11. SUBQUERY
+--------------------------------------------------
+SELECT *
+FROM work.TimesheetEntry
+WHERE ore > (
+    SELECT AVG(ore)
+    FROM work.TimesheetEntry
+);
+
+--------------------------------------------------
+12. CTE (WITH)
+--------------------------------------------------
+WITH totaluri AS (
+    SELECT idAngajat, SUM(ore) AS total
+    FROM ...
+    GROUP BY idAngajat
+)
+SELECT *
+FROM totaluri
+WHERE total > 10;
+
+--------------------------------------------------
+13. JSON (SQL SERVER)
+--------------------------------------------------
+Column:
+details NVARCHAR(MAX)
+
+Insert:
+'{"task":"development","complexity":"high"}'
+
+Read:
+JSON_VALUE(details, '$.task')
+
+Validate:
+ISJSON(details) = 1
+
+--------------------------------------------------
+14. VIEWS
+--------------------------------------------------
+CREATE VIEW vw_name AS
+SELECT ...
+
+--------------------------------------------------
+15. INDEXED VIEW (MATERIALIZED)
+--------------------------------------------------
+CREATE VIEW ... WITH SCHEMABINDING AS ...
+CREATE UNIQUE CLUSTERED INDEX ...
+
+--------------------------------------------------
+16. CONSTRAINTS
+--------------------------------------------------
+PRIMARY KEY
+FOREIGN KEY
+UNIQUE
+CHECK
+DEFAULT
+NOT NULL
+
+--------------------------------------------------
+17. INDEXES
+--------------------------------------------------
+CREATE INDEX IX_Name
+ON table(column);
+
+--------------------------------------------------
+18. INSERT
+--------------------------------------------------
+INSERT INTO table (col1, col2)
+VALUES (val1, val2);
+
+--------------------------------------------------
+19. BEST PRACTICES
+--------------------------------------------------
+- Use aliases (a, t, e)
+- Name constraints
+- Use schemas (hr, work, ref)
+- Comment queries
+- Avoid SELECT *
+
+--------------------------------------------------
+FINAL SUMMARY
+--------------------------------------------------
+You should demonstrate:
+- relational modeling (PK, FK)
+- joins (including LEFT JOIN)
+- GROUP BY + HAVING
+- analytic functions
+- JSON usage
+- view + indexed view
+- indexes
