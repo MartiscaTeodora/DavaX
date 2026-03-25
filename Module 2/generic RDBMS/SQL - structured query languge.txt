@@ -1,0 +1,34 @@
+SQL - structured query languge
+
+MSS syntax
+
+CREATE TABLE table_name(
+	col_id INT IDENTITY PRIMARY KEY,
+	col_1 datatype(),
+	col_2 datatype,
+);
+
+ALTER TABLE table_name ADD col_3 datatype3();
+
+EXEC sp_help table_name; ------ afiseaza toate detaliile despre un table
+
+INSERT INTO table_name
+	( col_1, col_2, ...)
+	VALUES
+	( value1, value2, ...),
+	( value1, value2, ...),
+	( value1, value2, ...);
+
+SELECT * FROM table_name;
+
+UPDATE table_name
+	SET	column1=new_value,
+		column2=new_value2, ...
+	[WHERE clause];
+
+DROP TABLE table_name
+
+
+---GO statement= batch separator
+
+
