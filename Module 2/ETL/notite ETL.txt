@@ -1,0 +1,14 @@
+ETL
+    - extract, transform load
+    - is a dat aintegration process that combines , cleans and organizes data from multiple ources into a single, consistent consistent data set for storage in a data warehouse, data lake or other target system.
+        src:https://www.ibm.com/think/topics/etl
+
+Mapping and transformation: sorces->target
+    tipuri de relatii: de la original latarget: nu se migreaza pk... exista mai multe tipuri de relatii
+        -1:1
+        -m:1
+        -1:m -split la un camp din sursa, de ex: name -> name+ surename
+        -m:n
+
+Migrarea este un proces recursiv, iterativ prin simulari
+

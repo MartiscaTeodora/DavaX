@@ -144,7 +144,6 @@ VALUES
 (3, '1910909123456', '0755555555', 'andrei.marin@email.com', 'Andrei Marin');
 
 
-SELECT * from hr.Angajat;
 
 ALTER TABLE ref.Client
 ALTER COLUMN detalii NVARCHAR(MAX);--date JSON
@@ -329,3 +328,4 @@ JOIN work.Timesheet t
     ON e.idTimesheet = t.idTimesheet
 JOIN hr.Angajat a 
     ON t.idAngajat = a.idAngajat;
+
