@@ -181,23 +181,5 @@ ON table(column);
 INSERT INTO table (col1, col2)
 VALUES (val1, val2);
 
---------------------------------------------------
-19. BEST PRACTICES
---------------------------------------------------
-- Use aliases (a, t, e)
-- Name constraints
-- Use schemas (hr, work, ref)
-- Comment queries
-- Avoid SELECT *
 
---------------------------------------------------
-FINAL SUMMARY
---------------------------------------------------
-You should demonstrate:
-- relational modeling (PK, FK)
-- joins (including LEFT JOIN)
-- GROUP BY + HAVING
-- analytic functions
-- JSON usage
-- view + indexed view
-- indexes
+

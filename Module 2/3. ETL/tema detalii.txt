@@ -1,0 +1,52 @@
+You had to build a system that tracks employee daily activity from multiple sources and puts everything in one table for reporting.
+What you did (in plain steps)
+
+1. Create “lookup” tables (dimensions)
+    These describe data:
+        employees → Dim_Employee
+        dates → Dim_Date
+        absence types → Dim_AbsenceType
+        trainings → Dim_Training
+    👉 Think: labels and categories
+
+2. Create source tables (raw data)
+    Where data comes from:
+        work → Time_Cards, Time_Entries
+        absences → Absences
+        training CSV → Training_Attendance_Staging
+        Excel missing hours → Missing_Hours_Staging
+    👉 Think: raw inputs
+
+3. Clean & transform data (ETL)
+    Examples:
+        convert “1h 30m” → minutes
+        remove bad CSV rows
+        add missing employees
+    👉 Think: make messy data usable
+
+4. Build the main table (FACT)
+    Fact_EmployeeActivity = the core
+    Each row =
+    1 employee + 1 day + 1 activity
+    Activities:
+        Worked → hours
+        Training → minutes
+        Absent → type
+        Missing → missing hours
+
+5. Load data into FACT
+    You combined everything:
+        timesheets → “Worked”
+        training CSV → “Training”
+        absences → “Absent” (expanded per day)
+        Excel → “Missing hours”
+    👉 With checks to avoid duplicates
+6. Create reports
+    Final queries answer:
+        what each employee did daily
+        total hours
+        absences
+        training
+        missing hours
+One sentence summary
+    You built a mini data warehouse + ETL pipeline that merges multiple data sources into one table for reporting employee activity.
