@@ -1,0 +1,7 @@
+employee_mail,absence_date,missing_hours,absence_type_code,reason
+alex.ionescu@email.com,5/7/2025,2,FAC,Examen universitar
+maria.popescu@email.com,5/9/2025,3,FAC,Curs facultate
+dan.vasilescu@email.com,5/10/2025,1,PER,Problema personala
+ioana.stan@email.com,5/10/2025,2,OTH,Acte administrative
+andrei.marin@email.com,5/12/2025,4,FAC,Sesiune facultate
+elena.georgescu@email.com,5/8/2025,1,PER,Consult medical

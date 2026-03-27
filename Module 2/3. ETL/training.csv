@@ -1,0 +1,8 @@
+mail_angajat,nume angajat,training_sesion,date,log on ,log off,in meeting time,role
+ion.popescu@email.com,Ion Popescu,SQL Performance Basics,5/9/2025,5/9/2025 10:00,5/9/2025 11:25,1h 25m 30s,presenter
+mihai.popa@email.com,Mihai Poapa,SQL Performance Basics,5/10/2025,5/9/2025 10:02,5/9/2025 11:20,1h 18m 13s,participant
+elena.georgescu@email.com,Elena Georgescu,SQL Performance Basics,5/11/2025,5/9/2025 10:01,5/9/2025 11:22,1h 21m 6s,participant
+alex.ionescu@email.com,Alex Ionescu,SQL Performance Basics,5/12/2025,5/12/2025 14:00,5/12/2025 15:10,1h 10m 0s,participant
+maria.popescu@email.com,Maria popescu,ETL Introduction,5/12/2025,5/12/2025 14:03,5/12/2025 15:05,1h 2m 0s,participant
+dan.vasilescu@email.com,Dan Vasilescu,ETL Introduction,5/13/2025,5/12/2025 14:00,5/12/2025 15:12,1h 12m 30s,participant
+ioana.stan@email.com,Ioana Stan,ETL Introduction,5/14/2025,5/12/2025 14:05,5/12/2025 15:09,1h 4m 0s,participant
