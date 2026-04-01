@@ -1,0 +1,35 @@
+2005 aparut, 
+
+configurare si initializare
+    git conig --global user.name "name"
+    git conig --global user.email "email"
+
+
+    git init - Initialize a new Git repository
+    git clone <url> - Clone a repository from a remote source
+    git add <file> - Stage changes for commit
+    git commit -m "message" - Commit staged changes with a message
+    git push - Upload commits to remote repository
+    git pull - Fetch and merge changes from remote repository
+    git status - Show working directory and staging area status
+    git log - Display commit history
+    git branch - List, create, or delete branches
+    git checkout <branch> - Switch to a different branch
+    git merge <branch> - Merge a branch into current branch
+    git diff - Show differences between commits or files
+    git remote -v - List remote repositories
+    git reset <file> - Unstage a file
+    git revert <commit> - Create a new commit that undoes changes
+    git tag <name> - Create a tag for a specific commit
+
+
+    configurare comenzi (git config)
+        git config --list - Show all configuration settings
+        git config --global --list - Show all global configuration settings
+        git config user.name - Display current username
+        git config user.email - Display current user email
+        git config --global user.name "name" - Set global username
+        git config --global user.email "email" - Set global user email
+        git config --local user.name "name" - Set local repository username
+        git config core.editor "editor" - Set default text editor
+        git config --unset user.name - Remove a configuration setting
