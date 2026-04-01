@@ -1,4 +1,4 @@
- # Example 1: Simple GET request
+"""  # Example 1: Simple GET request
 import requests
 
 response = requests.get('https://api.example.com/users/1')
@@ -42,4 +42,4 @@ payload = {
     'presence_penalty': 0.2
 }
 response = requests.post('https://api.example.com/completions', json=payload)
-print(response.json())
+print(response.json()) """
