@@ -1,0 +1,81 @@
+API aplication programming interface
+
+An API (Application Programming Interface) is a set of rules and protocols that allows different software applications to communicate with each other. It defines the methods and data formats that applications can use to request and exchange information.
+
+How an API call looks like:
+
+1. Basic HTTP Request Format:
+    GET https://api.example.com/endpoint?param1=value1&param2=value2
+    
+2. With Headers:
+    GET /users/123 HTTP/1.1
+    Host: api.example.com
+    Authorization: Bearer token123
+    Content-Type: application/json
+
+3. POST Request with Body:
+    POST https://api.example.com/users HTTP/1.1
+    Content-Type: application/json
+    
+    {
+      "name": "John Doe",
+      "email": "john@example.com"
+    }
+
+4. Common HTTP Methods:
+    - GET: Retrieve data
+    - POST: Create new data
+    - PUT: Update existing data
+    - DELETE: Remove data
+
+5. API Response Example:
+    {
+      "status": 200,
+      "data": {
+         "id": 1,
+         "name": "John Doe"
+      }
+    }
+
+    6. Chat Completion API vs Responses API:
+
+    Chat Completion API:
+    - Used for conversational interactions
+    - Maintains context across multiple messages
+    - Returns streaming or complete responses
+    - Example: OpenAI's /v1/chat/completions endpoint
+    - Request format includes message history
+    - Better for dialogue-based applications
+
+    Responses API:
+    - Typically refers to standard REST API responses
+    - Single request-response pattern
+    - No built-in conversation memory
+    - Each request is independent
+    - Used for data retrieval or CRUD operations
+    - Simpler for stateless interactions
+    -file serch,
+
+    Key Difference:
+    Chat Completion APIs handle multi-turn conversations with context, while Response APIs are stateless and handle individual requests independently.
+
+    # Example 1: Simple GET request
+    import requests
+
+    response = requests.get('https://api.example.com/users/1')
+    data = response.json()
+    print(data)
+
+    # Example 2: POST request with data
+    import requests
+
+    payload = {'name': 'Alice', 'email': 'alice@example.com'}
+    response = requests.post('https://api.example.com/users', json=payload)
+    print(response.json())
+
+    # Example 3: GET with query parameters
+    import requests
+
+    params = {'page': 1, 'limit': 10}
+    response = requests.get('https://api.example.com/posts', params=params)
+    print(response.json())
