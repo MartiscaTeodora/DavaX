@@ -1,4 +1,13 @@
-2005 aparut, 
+
+Git was created in April 2005 by Linus Torvalds, the creator of Linux. 
+The Linux kernel project depended on BitKeeper, a proprietary distributed VCS. 
+When a licensing dispute made BitKeeper unavailable for free, the project urgently needed an alternative.
+Torvalds designed Git with these goals:
+
+    Speed: Efficient handling of large repositories.
+    Distributed Architecture: Every developer has a complete repository copy.
+    Data Integrity: Secure tracking of changes.
+    Non-linear Development: Strong branching and merging support.
 
 configurare si initializare
     git conig --global user.name "name"
@@ -6,22 +15,40 @@ configurare si initializare
 
 
     git init - Initialize a new Git repository
+
     git clone <url> - Clone a repository from a remote source
+    
     git add <file> - Stage changes for commit
+    git add . - Stage changes for commit to all the files
+
     git commit -m "message" - Commit staged changes with a message
+    git commit --amend -edits the last commit
+
     git push - Upload commits to remote repository
     git pull - Fetch and merge changes from remote repository
     git status - Show working directory and staging area status
     git log - Display commit history
+
+
     git branch - List, create, or delete branches
     git checkout <branch> - Switch to a different branch
+    git cherry-pick abc
     git merge <branch> - Merge a branch into current branch
+
     git diff - Show differences between commits or files
     git remote -v - List remote repositories
     git reset <file> - Unstage a file
     git revert <commit> - Create a new commit that undoes changes
     git tag <name> - Create a tag for a specific commit
 
+    git stash save "WIP" -and lucrezi din gresesla pe branchul gresit
+    git stash list
+    git stash pop
+    git stash apply stash@{1}
+    git stash clear
+
+    git reset --soft/--mixed/--hard <commit_hash> keeps changes staged/in working dir, unstaged/discard all changes
+    git reset HEAD <file_name> unstag a specific file
 
     configurare comenzi (git config)
         git config --list - Show all configuration settings

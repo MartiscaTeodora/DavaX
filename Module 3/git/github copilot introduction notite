@@ -1,0 +1,42 @@
+# GitHub Copilot Commands in VS Code
+
+## Main Commands
+
+1. **Ctrl + Enter** (or Cmd + Enter on Mac)
+    - Opens the Copilot suggestions panel
+    - Shows alternative code suggestions
+
+2. **Alt + \** (or Option + \ on Mac)
+    - Triggers inline Copilot suggestion
+    - Provides single suggestion in editor
+
+3. **Ctrl + Shift + A** (or Cmd + Shift + A on Mac)
+    - Opens Copilot Chat panel
+    - Ask questions about code
+
+4. **Tab**
+    - Accept current Copilot suggestion
+    - Complete the suggested code
+
+5. **Escape**
+    - Dismiss Copilot suggestion
+    - Close suggestion panel
+
+## Chat Commands
+
+- `/explain` - Explain selected code
+- `/tests` - Generate unit tests
+- `/fix` - Fix problems in code
+- `/optimize` - Optimize selected code
+- `/help` - Get general help
+
+## Best Practices
+
+- Write clear comments describing what you need
+- Start typing your function/variable names
+- Use meaningful context for better suggestions
+- Review suggestions before accepting them
+
+@workspace
+@vscode
+@terminal
