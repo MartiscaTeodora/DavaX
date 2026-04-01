@@ -44,7 +44,7 @@ KEY TAKEAWAYS:
 - Access levels are conventions that guide developers
 - Use properties and setters to control attribute access
 - Private attributes use name mangling as a discouragment, not a lock
-- Special methods enable intuitive object behavior (e.g., __str__ for print())
+- Special methods enable igintuitive object behavior (e.g., __str__ for print())
 """
 
 # 1. CLASSES AND OBJECTS
