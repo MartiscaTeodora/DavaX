@@ -1,9 +1,4 @@
-/*
-Assignment version: employee daily activity integration
-Database engine: SQL Server (T-SQL)
-Goal: keep the original timesheet database, then add ETL tables for Absences and Training,
-and load everything into one reporting table: dw.Fact_EmployeeActivity.
-*/
+
 
 /* =========================================================
    0. Create database and schemas
@@ -319,8 +314,9 @@ select * from hr.Angajat
 /*aici am ajuns*/
 /*
 Example load commands after you put CSV files in a folder visible to SQL Server:*/
+/*
 BULK INSERT stage.Absence_Input
-FROM 'C:\temp\absences.csv'
+FROM 'C:\Users\tmartisca\OneDrive - ENDAVA\Documents\SQL Server Management Studio 21\absences.csv'
 WITH (FIRSTROW = 2, FIELDTERMINATOR = ',', ROWTERMINATOR = '\n', TABLOCK);
 
 BULK INSERT stage.Training_Attendance
@@ -331,7 +327,7 @@ WITH (FIRSTROW = 2, FIELDTERMINATOR = ',', ROWTERMINATOR = '\n', TABLOCK);
 BULK INSERT stage.Leave
 FROM 'C:\temp\leave.csv'
 WITH (FIRSTROW = 2, FIELDTERMINATOR = ',', ROWTERMINATOR = '\n', TABLOCK);
-
+*/
 
 /* Demo inserts so the script works even without BULK INSERT 
 INSERT INTO stage.Absence_Input (employee_mail, absence_date, missing_hours, absence_type_code, reason)
@@ -359,6 +355,26 @@ GO
    6. Data warehouse fact table
    One row = one employee + one date + one activity
    ========================================================= */
+   /*
+   ================
+   used the wizard instead:
+   stage.imp_absences
+   stage.imp_leave
+   stage.imp_training
+   ================
+   */
+   CREATE UNIQUE INDEX IX_Angajat_Mail
+ON hr.Angajat(mail);
+CREATE INDEX IX_TrainingAttendance_EmployeeMail
+ON stage.imp_training(mail_angajat);
+
+
+CREATE INDEX IX_Absences_EmployeeMail
+ON stage.imp_absences(employee_mail);
+
+CREATE INDEX IX_Leaves_EmployeeMail
+ON stage.imp_leave(mail);
+
 CREATE TABLE dw.Fact_EmployeeActivity (
     fact_id INT IDENTITY(1,1) PRIMARY KEY,
     idAngajat INT NOT NULL,
@@ -372,11 +388,21 @@ CREATE TABLE dw.Fact_EmployeeActivity (
     training_minutes INT NOT NULL DEFAULT 0,
     source_system VARCHAR(30) NOT NULL,
     notes VARCHAR(255) NULL,
-    CONSTRAINT FK_Fact_Employee FOREIGN KEY (idAngajat) REFERENCES hr.Angajat(idAngajat),
-    CONSTRAINT FK_Fact_Project FOREIGN KEY (project_id) REFERENCES work.Proiect(idProiect),
-    CONSTRAINT FK_Fact_Training FOREIGN KEY (training_id) REFERENCES ref.Training(training_id),
-    CONSTRAINT FK_Fact_AbsenceType FOREIGN KEY (absence_type_code) REFERENCES ref.AbsenceType(absence_type_code),
-    CONSTRAINT FK_Fact_ActivityType FOREIGN KEY (activity_type_code) REFERENCES ref.ActivityType(activity_type_code)
+
+    CONSTRAINT FK_Fact_Employee 
+        FOREIGN KEY (idAngajat) REFERENCES hr.Angajat(idAngajat),
+
+    CONSTRAINT FK_Fact_Project 
+        FOREIGN KEY (project_id) REFERENCES work.Proiect(idProiect),
+
+    CONSTRAINT FK_Fact_Training 
+        FOREIGN KEY (training_id) REFERENCES ref.Training(training_id),
+
+    CONSTRAINT FK_Fact_AbsenceType 
+        FOREIGN KEY (absence_type_code) REFERENCES ref.AbsenceType(absence_type_code),
+
+    CONSTRAINT FK_Fact_ActivityType 
+        FOREIGN KEY (activity_type_code) REFERENCES ref.ActivityType(activity_type_code)
 );
 GO
 
@@ -384,21 +410,21 @@ CREATE INDEX idx_fact_employee_date ON dw.Fact_EmployeeActivity(idAngajat, activ
 GO
 
 /* =========================================================
-   7. ETL Step A - prepare training lookup values
+   7. ETL : prepare training lookup values
    ========================================================= */
 INSERT INTO ref.Training (training_name, session_date)
-SELECT DISTINCT s.training_name, s.session_date
-FROM stage.Training_Attendance s
+SELECT DISTINCT s.training_sesion, s.date
+FROM stage.imp_training s
 WHERE NOT EXISTS (
     SELECT 1
     FROM ref.Training t
-    WHERE t.training_name = s.training_name
-      AND t.session_date = s.session_date
+    WHERE t.training_name = s.training_sesion
+      AND t.session_date = s.date
 );
 GO
 
 /* =========================================================
-   8. ETL Step B - load worked hours from existing timesheets
+   8. ETL : load worked hours from existing timesheets
    ========================================================= */
 INSERT INTO dw.Fact_EmployeeActivity
     (idAngajat, activity_date, activity_type_code, project_id, training_id, absence_type_code,
@@ -421,7 +447,7 @@ JOIN work.Timesheet t
 GO
 
 /* =========================================================
-   9. ETL Step C - load absences from CSV staging
+   9. ETL : load absences from CSV staging
    Integration key: employee_mail -> hr.Angajat.mail
    ========================================================= */
 INSERT INTO dw.Fact_EmployeeActivity
@@ -439,7 +465,7 @@ SELECT
     0,
     'ABSENCE_CSV',
     s.reason
-FROM stage.Absence_Input s
+FROM stage.imp_absences s
 JOIN hr.Angajat a
     ON a.mail = s.employee_mail
 WHERE NOT EXISTS (
@@ -452,9 +478,9 @@ WHERE NOT EXISTS (
       AND f.missing_hours = s.missing_hours
 );
 GO
-
+select * from stage.imp_training;
 /* =========================================================
-   10. ETL Step D - load training from CSV staging
+   ETL : load training from CSV staging
    Convert text duration like 1h 25m 30s to minutes
    ========================================================= */
 INSERT INTO dw.Fact_EmployeeActivity
@@ -462,34 +488,34 @@ INSERT INTO dw.Fact_EmployeeActivity
      worked_hours, missing_hours, training_minutes, source_system, notes)
 SELECT
     a.idAngajat,
-    s.session_date,
+    s.date,
     'TRAINING',
     NULL,
     t.training_id,
     NULL,
     0,
     0,
-    DATEDIFF(MINUTE, s.first_join, s.last_leave),
+    DATEDIFF(MINUTE, s.log_on, s.log_off),
     'TRAINING_CSV',
-    CONCAT(ISNULL(s.role, 'participant'), ' - duration text: ', s.in_meeting_duration)
-FROM stage.Training_Attendance s
+    CONCAT(ISNULL(s.role, 'participant'), ' - duration text: ', s.in_meeting_time)
+FROM stage.imp_training s
 JOIN hr.Angajat a
-    ON a.mail = s.employee_mail
+    ON a.mail = s.mail_angajat
 JOIN ref.Training t
-    ON t.training_name = s.training_name
-   AND t.session_date = s.session_date
+    ON t.training_name = s.training_sesion
+   AND t.session_date = s.date
 WHERE NOT EXISTS (
     SELECT 1
     FROM dw.Fact_EmployeeActivity f
     WHERE f.idAngajat = a.idAngajat
-      AND f.activity_date = s.session_date
+      AND f.activity_date = s.date
       AND f.activity_type_code = 'TRAINING'
       AND f.training_id = t.training_id
 );
 GO
 
 /* =========================================================
-   11. Useful views and reports
+    Useful views and reports
    ========================================================= */
 CREATE OR ALTER VIEW work.vw_ActivitateDetaliata AS
 SELECT
