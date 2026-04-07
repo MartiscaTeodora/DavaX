@@ -28,6 +28,7 @@ build/
 .env
 .env.local
 
+
 # Temporary
 *.tmp
 *.temp
