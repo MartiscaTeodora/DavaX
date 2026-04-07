@@ -1,0 +1,246 @@
+Create a Table
+CREATE TABLE employees (
+    emp_id NUMBER PRIMARY KEY,
+    first_name VARCHAR2(50),
+    last_name VARCHAR2(50),
+    salary NUMBER(10,2),
+    hire_date DATE
+);
+🔹 2. Insert Data
+INSERT INTO employees (emp_id, first_name, last_name, salary, hire_date)
+VALUES (1, 'John', 'Doe', 5000, SYSDATE);
+🔹 3. Select Data
+SELECT * FROM employees;
+
+Select specific columns:
+
+SELECT first_name, salary FROM employees;
+🔹 4. Filtering (WHERE)
+SELECT * FROM employees
+WHERE salary > 4000;
+SELECT * FROM employees
+WHERE first_name = 'John';
+🔹 5. Sorting (ORDER BY)
+SELECT * FROM employees
+ORDER BY salary DESC;
+🔹 6. Update Data
+UPDATE employees
+SET salary = 6000
+WHERE emp_id = 1;
+🔹 7. Delete Data
+DELETE FROM employees
+WHERE emp_id = 1;
+🔹 8. Aggregate Functions
+SELECT AVG(salary) AS avg_salary FROM employees;
+SELECT COUNT(*) FROM employees;
+🔹 9. GROUP BY
+SELECT department_id, AVG(salary)
+FROM employees
+GROUP BY department_id;
+🔹 10. Joins
+
+Assume another table:
+
+CREATE TABLE departments (
+    dept_id NUMBER PRIMARY KEY,
+    dept_name VARCHAR2(50)
+);
+
+Join example:
+
+SELECT e.first_name, d.dept_name
+FROM employees e
+JOIN departments d
+ON e.dept_id = d.dept_id;
+🔹 11. Subquery
+SELECT first_name, salary
+FROM employees
+WHERE salary > (SELECT AVG(salary) FROM employees);
+🔹 12. Sequence (Oracle-specific)
+CREATE SEQUENCE emp_seq START WITH 1 INCREMENT BY 1;
+
+Use it:
+
+INSERT INTO employees (emp_id, first_name)
+VALUES (emp_seq.NEXTVAL, 'Alice');
+🔹 13. Date Functions (Oracle-specific)
+SELECT SYSDATE FROM dual;
+SELECT ADD_MONTHS(SYSDATE, 3) FROM dual;
+🔹 14. Using DUAL Table (Oracle-specific)
+SELECT 'Hello Oracle' FROM dual;
+
+🔶 1. Analytic (Window) Functions
+Rank employees by salary
+SELECT emp_id, first_name, salary,
+       RANK() OVER (ORDER BY salary DESC) AS rank_salary
+FROM employees;
+Dense rank (no gaps)
+SELECT emp_id, salary,
+       DENSE_RANK() OVER (ORDER BY salary DESC) AS dense_rank
+FROM employees;
+Row number (unique ordering)
+SELECT emp_id, salary,
+       ROW_NUMBER() OVER (ORDER BY salary DESC) AS rn
+FROM employees;
+Partitioning (very important)
+
+👉 Rank inside each department
+
+SELECT emp_id, dept_id, salary,
+       RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS dept_rank
+FROM employees;
+Running total
+SELECT emp_id, salary,
+       SUM(salary) OVER (ORDER BY emp_id) AS running_total
+FROM employees;
+🔶 2. Common Table Expressions (CTE)
+Basic WITH
+WITH high_paid AS (
+    SELECT * FROM employees WHERE salary > 5000
+)
+SELECT * FROM high_paid;
+Multiple CTEs
+WITH dept_avg AS (
+    SELECT dept_id, AVG(salary) avg_sal
+    FROM employees
+    GROUP BY dept_id
+),
+high_paid AS (
+    SELECT e.*
+    FROM employees e
+    JOIN dept_avg d ON e.dept_id = d.dept_id
+    WHERE e.salary > d.avg_sal
+)
+SELECT * FROM high_paid;
+🔶 3. Recursive Query (Hierarchical Data)
+Using CONNECT BY (Oracle classic)
+SELECT emp_id, first_name, manager_id, LEVEL
+FROM employees
+START WITH manager_id IS NULL
+CONNECT BY PRIOR emp_id = manager_id;
+Using recursive CTE (modern way)
+WITH emp_tree (emp_id, first_name, manager_id, lvl) AS (
+    SELECT emp_id, first_name, manager_id, 1
+    FROM employees
+    WHERE manager_id IS NULL
+    UNION ALL
+    SELECT e.emp_id, e.first_name, e.manager_id, t.lvl + 1
+    FROM employees e
+    JOIN emp_tree t ON e.manager_id = t.emp_id
+)
+SELECT * FROM emp_tree;
+🔶 4. MERGE (UPSERT)
+
+👉 Very common in ETL jobs
+
+MERGE INTO employees e
+USING new_employees n
+ON (e.emp_id = n.emp_id)
+WHEN MATCHED THEN
+    UPDATE SET e.salary = n.salary
+WHEN NOT MATCHED THEN
+    INSERT (emp_id, first_name, salary)
+    VALUES (n.emp_id, n.first_name, n.salary);
+🔶 5. CASE Expressions
+SELECT first_name, salary,
+       CASE
+           WHEN salary > 7000 THEN 'HIGH'
+           WHEN salary BETWEEN 4000 AND 7000 THEN 'MEDIUM'
+           ELSE 'LOW'
+       END AS salary_category
+FROM employees;
+🔶 6. PIVOT (Oracle-specific)
+
+👉 Convert rows → columns
+
+SELECT *
+FROM (
+    SELECT dept_id, salary FROM employees
+)
+PIVOT (
+    AVG(salary)
+    FOR dept_id IN (10, 20, 30)
+);
+🔶 7. UNPIVOT
+
+👉 Convert columns → rows
+
+SELECT *
+FROM sales
+UNPIVOT (
+    amount FOR quarter IN (q1, q2, q3, q4)
+);
+🔶 8. EXISTS vs IN
+EXISTS (better for large data)
+SELECT *
+FROM employees e
+WHERE EXISTS (
+    SELECT 1
+    FROM departments d
+    WHERE d.dept_id = e.dept_id
+);
+IN
+SELECT *
+FROM employees
+WHERE dept_id IN (SELECT dept_id FROM departments);
+🔶 9. Correlated Subquery
+SELECT e.first_name, e.salary
+FROM employees e
+WHERE salary > (
+    SELECT AVG(salary)
+    FROM employees
+    WHERE dept_id = e.dept_id
+);
+
+👉 Runs per row → powerful but can be slower
+
+🔶 10. Inline Views (Subquery in FROM)
+SELECT *
+FROM (
+    SELECT emp_id, salary
+    FROM employees
+    ORDER BY salary DESC
+)
+WHERE ROWNUM <= 5;
+🔶 11. FETCH FIRST (modern alternative to ROWNUM)
+SELECT *
+FROM employees
+ORDER BY salary DESC
+FETCH FIRST 5 ROWS ONLY;
+🔶 12. Index Hint (Oracle tuning)
+SELECT /*+ INDEX(employees emp_idx) */
+       *
+FROM employees
+WHERE emp_id = 100;
+🔶 13. Bulk Insert (INSERT ALL)
+INSERT ALL
+    INTO employees (emp_id, first_name) VALUES (1, 'Alice')
+    INTO employees (emp_id, first_name) VALUES (2, 'Bob')
+SELECT * FROM dual;
+🔶 14. Advanced Joins
+LEFT JOIN
+SELECT e.first_name, d.dept_name
+FROM employees e
+LEFT JOIN departments d
+ON e.dept_id = d.dept_id;
+SELF JOIN
+SELECT e.first_name AS employee,
+       m.first_name AS manager
+FROM employees e
+LEFT JOIN employees m
+ON e.manager_id = m.emp_id;
+🔶 15. NVL / COALESCE (null handling)
+SELECT first_name, NVL(commission, 0)
+FROM employees;
+SELECT COALESCE(commission, bonus, 0)
+FROM employees;
+🔶 16. Performance Tip Example
+
+👉 Avoid this:
+
+WHERE TO_CHAR(hire_date, 'YYYY') = '2024'
+
+👉 Use this instead (index-friendly):
+
+WHERE hire_date >= DATE '2024-01-01'
+  AND hire_date < DATE '2025-01-01'

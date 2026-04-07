@@ -392,3 +392,5 @@ SELECT log_id,
        session_id
 FROM debug_log
 ORDER BY log_id;
+
+DROP table employees

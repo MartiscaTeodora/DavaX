@@ -1,0 +1,70 @@
+[
+  {
+    "title": "1984",
+    "summary": "A dystopian story about a totalitarian society controlled by surveillance, propaganda, and thought control. Winston Smith secretly rebels against the system in search of truth and freedom.",
+    "themes": ["freedom", "control", "surveillance", "truth", "politics"]
+  },
+  {
+    "title": "The Hobbit",
+    "summary": "Bilbo Baggins joins a dangerous journey to reclaim treasure guarded by the dragon Smaug. Along the way, he discovers courage, friendship, and a sense of adventure.",
+    "themes": ["friendship", "adventure", "fantasy", "courage", "magic"]
+  },
+    {
+        "title": "To Kill a Mockingbird",
+        "summary": "Set in the racially charged South, young Scout Finch learns about justice and morality as her father, Atticus Finch, defends a black man accused of raping a white  woman. The novel explores themes of racial injustice, moral growth, and empathy.",
+        "themes": ["racial injustice", "moral growth", "empathy", "justice", "family"]
+    },
+    {
+        "title": "The Great Gatsby",
+        "summary": "Jay Gatsby, a wealthy and mysterious man            , throws lavish parties in hopes of rekindling a past romance with Daisy Buchanan. The novel explores themes of the American Dream, love, and social class.",
+        "themes": ["American Dream", "love", "social class", "wealth", "illusion"]
+    },
+    {
+        "title": "Percy Jackson & The Olympians: The Lightning Thief",
+        "summary": "Percy Jackson discovers he is a demigod and embarks on a quest to prevent a war among the Greek gods. Along the way, he learns about friendship, bravery, and his own identity.",
+        "themes": ["friendship", "bravery", "identity", "mythology  ", "adventure"] 
+
+    },
+    {
+        "title": "The Little Prince",
+        "summary": "A young prince travels from planet to planet, learning about love, friendship, and the nature of human relationships. The story explores themes of innocence, imagination, and the importance of seeing with the heart.",
+        "themes": ["love", "friendship", "innocence", "imagination", "human relationships"]
+    },
+    {
+        "title": "The Catcher in the Rye",
+        "summary": "Holden Caulfield, a disenchanted teenager, narrates his experiences in New York City after being expelled from prep school. The novel explores themes of alienation, identity, and the struggles of adolescence.",
+        "themes": ["alienation", "identity", "adolescence", "mental health", "society"]
+    },
+    {
+        "title": "Harry Potter and the Sorcerer's Stone",
+        "summary": "Harry Potter discovers he is a wizard and attends Hogwarts School of Witchcraft and Wizardry. He makes friends, learns magic, and faces the dark wizard Voldemort. The novel explores themes of friendship, bravery, and the battle between good and evil.",
+        "themes": ["friendship", "bravery", "magic", "good vs evil", "identity"]
+    },
+    {
+        "title": "The Hunger Games",
+        "summary": "In a dystopian future, Katniss Everdeen volunteers to take her sister's place in a deadly televised competition. The novel explores themes of survival, rebellion, and the effects of violence on society.",
+        "themes": ["survival", "rebellion", "violence", "society", "sacrifice"]
+    },
+    {
+        "title": "The Alchemist",
+        "summary": "Santiago, a shepherd boy, embarks on a journey to find a hidden treasure. Along the way, he learns about following his dreams, listening to his heart, and the interconnectedness of all things.",
+        "themes": ["following dreams", "listening to the heart", "interconnectedness", "personal legend", "spirituality"]
+    },
+    {
+        "title": "The Lord of the Rings: The Fellowship of the Ring",
+        "summary": "Frodo Baggins embarks on a perilous journey to destroy the One Ring and save Middle-earth from the dark lord Sauron. The novel explores themes of friendship, courage, and the struggle between good and evil.",
+        "themes": ["friendship", "courage", "good vs evil", "adventure", "sacrifice"]
+    },
+    {
+        "title": "The Chronicles of Narnia: The Lion, the Witch and the Wardrobe",
+        "summary": "Four siblings discover a magical world called Narnia through a wardrobe. They join forces with Aslan, a lion, to defeat the evil White Witch and restore peace to Narnia. The novel explores themes of good vs evil, courage, and the power of imagination.",
+        "themes": ["good vs evil", "courage", "imagination", "friendship", "sacrifice"]
+    },
+    {
+        "title":"One Hundred Years of Solitude",
+        "summary":"The Buendía family experiences love, loss, and the passage of time in the fictional town of Macondo. The novel explores themes of solitude, family, and the cyclical nature of history.",
+        "themes": ["solitude", "family", "time", "history", "magical realism"]  
+    }
+    
+
+]
