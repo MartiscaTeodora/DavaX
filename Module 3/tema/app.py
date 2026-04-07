@@ -20,6 +20,12 @@ def get_summary_by_title(title: str, data: list)-> str:
 
 books = load_books()
 
-print(get_summary_by_title("1984", books))
+# Example usage of the get_summary_by_title function with some test cases.
+""" print(get_summary_by_title("1984", books))
 print(get_summary_by_title("The Hobbit", books))
-print(get_summary_by_title("Unknown Book", books))
+print(get_summary_by_title("Unknown Book", books)) """
+
+if __name__ == "__main__":
+    books = load_books()
+    title = input("Enter book title: ")
+    print(get_summary_by_title(title, books))
