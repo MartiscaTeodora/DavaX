@@ -1,6 +1,6 @@
 import json
 import chromadb
-from openai import OpenAI
+from openai import OpenAI # type: ignore
 from dotenv import load_dotenv
 import os
 
