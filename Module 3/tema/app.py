@@ -176,19 +176,26 @@ if __name__ == "__main__":
 
     user_query = input("Ask for a book recommendation: ")
 
-    results = retrieve_books(user_query)
-    books = format_retrieved_books(results)
-    prompt = build_prompt(user_query, books)
-    recommendation = get_book_recommendation(prompt)
+    if not user_query:
+        print("Please enter a valid query.")
+    else:    
+        results = retrieve_books(user_query)
+        books = format_retrieved_books(results)
 
-    print("\nRecommendation:")
-    print(recommendation)
+        if not books:
+            print("No relevant books found for your query.")
+        else:
+            prompt = build_prompt(user_query, books)
+            recommendation = get_book_recommendation(prompt)
 
-    title = extract_recommended_title(recommendation)
+            print("\nRecommendation:")
+            print(recommendation)
 
-    if title:
-        full_summary = get_summary_by_title(title, books_data)
-        print("\nDetailed summary:")
-        print(full_summary)
-    else:
-        print("\nCould not extract the recommended title.")
+            title = extract_recommended_title(recommendation)
+
+            if title:
+                full_summary = get_summary_by_title(title, books_data)
+                print("\nDetailed summary:")
+                print(full_summary)
+            else:
+                print("\nCould not extract the recommended title.")
