@@ -153,7 +153,7 @@ if __name__ == "__main__":
     print(recommendation)
     """
     # test for extract_recommended_title and get_summary_by_title integration
-    user_query = "I want a book about friendship and magic"
+    """  user_query = "I want a book about friendship and magic"
 
     results = retrieve_books(user_query)
     books = format_retrieved_books(results)
@@ -167,6 +167,27 @@ if __name__ == "__main__":
 
     if title:
         full_summary = get_summary_by_title(title, load_books())
+        print("\nDetailed summary:")
+        print(full_summary)
+    else:
+        print("\nCould not extract the recommended title.")
+     """
+    books_data = load_books()
+
+    user_query = input("Ask for a book recommendation: ")
+
+    results = retrieve_books(user_query)
+    books = format_retrieved_books(results)
+    prompt = build_prompt(user_query, books)
+    recommendation = get_book_recommendation(prompt)
+
+    print("\nRecommendation:")
+    print(recommendation)
+
+    title = extract_recommended_title(recommendation)
+
+    if title:
+        full_summary = get_summary_by_title(title, books_data)
         print("\nDetailed summary:")
         print(full_summary)
     else:
