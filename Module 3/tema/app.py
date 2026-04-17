@@ -226,6 +226,24 @@ def fallback_from_retrieval(books):
         return None
     return random.choice(books)
 
+def text_to_speech(text: str, output_file: str = "recommendation.mp3"):
+    speech_file_path = os.path.join(base_dir, output_file)
+
+    try:
+        with client.audio.speech.with_streaming_response.create(
+            model="gpt-4o-mini-tts",
+            voice="alloy",
+            input=text
+        ) as response:
+            response.stream_to_file(speech_file_path)
+
+        return speech_file_path
+
+    except APITimeoutError:
+        return None
+    except APIConnectionError:
+        return None
+
 if __name__ == "__main__":
     books_data = load_books()
 
@@ -270,6 +288,11 @@ if __name__ == "__main__":
                     fallback_book = fallback_from_retrieval(books)
 
                     if fallback_book:
+
+                        fallback_text = (
+                            f"I recommend {fallback_book['title']} based on your interests.\n\n"
+                            f"Summary: {fallback_book['summary']}"
+)
                         print("=" * 50)
                         print("📚 FALLBACK RECOMMENDATION")
                         print("=" * 50)
@@ -277,6 +300,10 @@ if __name__ == "__main__":
 
                         print("\n📖 Summary:")
                         print(fallback_book["summary"])
+
+
+                        audio_path = text_to_speech(fallback_text, "fallback_recommendation.mp3")
+                        print(f"\n🔊 Audio saved to: {audio_path}")
                     else:
                         print("No fallback recommendation available.")
                 else:
@@ -289,6 +316,10 @@ if __name__ == "__main__":
             print("📚 RECOMMENDATION")
             print("=" * 50)
             print(answer)
+
+
+            audio_path = text_to_speech(answer)
+            print(f"\n🔊 Audio saved to: {audio_path}")
 
         except Exception as e:
             print("\n:( An unexpected error occurred.")

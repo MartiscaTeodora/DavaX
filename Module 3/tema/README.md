@@ -108,3 +108,7 @@ This project was developed step by step to ensure a clear understanding of the R
 - Added input validation
 - Added error handling for API failures
 - Improved output formatting
+
+### Optional Feature: Text-to-Speech
+The application can convert the final recommendation and detailed summary into audio using OpenAI Text-to-Speech.
+The generated audio is saved locally as an `.mp3` file.
