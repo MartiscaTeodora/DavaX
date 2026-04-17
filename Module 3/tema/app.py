@@ -1,11 +1,35 @@
 import json
 import os
 import chromadb
-from openai import OpenAI
+from openai import OpenAI, APIConnectionError, APITimeoutError
 from dotenv import load_dotenv
+from streamlit import title
 
 
 print(os.getcwd())
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+
+# Example usage of the get_summary_by_title function with some test cases.
+""" print(get_summary_by_title("1984", books))
+print(get_summary_by_title("The Hobbit", books))
+print(get_summary_by_title("Unknown Book", books)) """
+
+
+
+# 1. încărcăm variabilele din .env
+load_dotenv()
+
+# 2. inițializăm clientul OpenAI
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    timeout=60,
+    max_retries=2)
+
+# 3. ne conectăm la aceeași bază ChromaDB folosită la ingest
+chroma_client = chromadb.PersistentClient(path="./chroma_db")
+collection = chroma_client.get_or_create_collection(name="books")
+
 # This function loads the book data from a JSON file and 
 # returns it as a list of dictionaries.
 def load_books(path="books.json"):
@@ -26,44 +50,33 @@ def get_summary_by_title(title: str, data: list)-> str:
 
 books = load_books()
 
-# Example usage of the get_summary_by_title function with some test cases.
-""" print(get_summary_by_title("1984", books))
-print(get_summary_by_title("The Hobbit", books))
-print(get_summary_by_title("Unknown Book", books)) """
-
-
-
-# 1. încărcăm variabilele din .env
-load_dotenv()
-
-# 2. inițializăm clientul OpenAI
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-# 3. ne conectăm la aceeași bază ChromaDB folosită la ingest
-chroma_client = chromadb.PersistentClient(path="./chroma_db")
-collection = chroma_client.get_or_create_collection(name="books")
-
-
 def retrieve_books(query: str, top_k: int = 3):
     """
     Primește query-ul utilizatorului, creează embedding,
     caută în ChromaDB și returnează cele mai relevante rezultate.
     """
 
-    # 4. generăm embedding pentru întrebarea utilizatorului
-    response = client.embeddings.create(
-        model="text-embedding-3-small",
-        input=query
-    )
-    query_embedding = response.data[0].embedding
+    try:
+        # 4. generăm embedding pentru întrebarea utilizatorului
+        response = client.embeddings.create(
+            model="text-embedding-3-small",
+            input=query
+        )
+        query_embedding = response.data[0].embedding
 
-    # 5. căutăm în vector store
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=top_k
-    )
+        # 5. căutăm în vector store
+        results = collection.query(
+            query_embeddings=[query_embedding],
+            n_results=top_k
+        )
 
-    return results
+        return results
+    except APITimeoutError:
+        print("The request timed out. Please try again later.")
+        return None
+    except APIConnectionError:
+        print("Failed to connect to the API. Please check your network connection.")
+        return None
 
 # Această funcție formatează rezultatele obținute de la ChromaDB într-un format ușor de citit.
 def format_retrieved_books(results):
@@ -100,11 +113,90 @@ Available books:
 {context}
 
 Choose the single best recommendation based only on the books above.
-Explain briefly why it matches the user's interests.
-On the last line, write exactly:
-RECOMMENDED_TITLE: <exact title>
+After choosing the book, call the tool get_summary_by_title with the exact title.
+Then provide:
+1. a short conversational recommendation
+2. the detailed summary from the tool
 """
     return prompt
+
+def run_book_assistant(user_query: str, books_data: list):
+    results = retrieve_books(user_query)
+
+    if results is None:
+        return "Sorry, there was an error retrieving book recommendations. Please try again later."
+
+    books = format_retrieved_books(results)
+
+    if not books:
+        return "No relevant books were found."
+
+    prompt = build_prompt(user_query, books)
+
+    tools = [
+        {
+            "type": "function",
+            "name": "get_summary_by_title",
+            "description": "Return the full local summary for an exact book title.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "The exact title of the recommended book."
+                    }
+                },
+                "required": ["title"],
+                "additionalProperties": False
+            }
+        }
+    ]
+
+    try:
+        first_response = client.responses.create(
+            model="gpt-4.1-mini",
+            input=prompt,
+            tools=tools
+        )
+    except APITimeoutError:
+        return "The request to OpenAI timed out. Please try again."
+    except APIConnectionError:
+        return "Could not connect to OpenAI. Check your internet, VPN, proxy, or firewall settings and try again."
+
+
+    tool_call = None
+    for item in first_response.output:
+        if item.type == "function_call" and item.name == "get_summary_by_title":
+            tool_call = item
+            break
+
+    if tool_call is None:
+        return first_response.output_text
+
+    arguments = json.loads(tool_call.arguments)
+    title = arguments["title"]
+    tool_result = get_summary_by_title(title, books_data)
+
+    try:
+        second_response = client.responses.create(
+            model="gpt-4.1-mini",
+            previous_response_id=first_response.id,
+            input=[
+                {
+                    "type": "function_call_output",
+                    "call_id": tool_call.call_id,
+                    "output": tool_result
+                }
+            ]
+        )
+    except APITimeoutError:
+        return "The recommendation was generated, but the follow-up tool step timed out."
+    except APIConnectionError:
+        return "The recommendation step worked, but the connection failed while finishing the response."
+
+
+    return second_response.output_text
+
 
 def extract_recommended_title(response_text: str):
     lines = response_text.splitlines()
@@ -172,7 +264,9 @@ if __name__ == "__main__":
     else:
         print("\nCould not extract the recommended title.")
      """
-    books_data = load_books()
+    
+    # Final integration test with user input
+    """ books_data = load_books()
 
     user_query = input("Ask for a book recommendation: ")
 
@@ -198,4 +292,13 @@ if __name__ == "__main__":
                 print("\nDetailed summary:")
                 print(full_summary)
             else:
-                print("\nCould not extract the recommended title.")
+                print("\nCould not extract the recommended title.") """
+    books_data = load_books()
+    user_query = input("Ask for a book recommendation: ").strip()
+
+    if not user_query:
+        print("Please enter a valid question.")
+    else:
+        answer = run_book_assistant(user_query, books_data)
+        print("\nAssistant response:\n")
+        print(answer)
