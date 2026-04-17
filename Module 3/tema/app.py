@@ -4,6 +4,7 @@ import chromadb
 from openai import OpenAI, APIConnectionError, APITimeoutError
 from dotenv import load_dotenv
 from streamlit import title
+import random
 
 
 print(os.getcwd())
@@ -213,92 +214,83 @@ def get_book_recommendation(prompt: str):
     )
 
     return response.output_text
+def contains_inappropriate_language(text: str):
+    banned_words = ["stupid", "idiot", "hate", "dumb", "garbage", "useless", "worthless", "terrible", "awful", "horrible"]  # simplu
+
+    text_lower = text.lower()
+    return any(word in text_lower for word in banned_words)
+
+
+def fallback_from_retrieval(books):
+    if not books:
+        return None
+    return random.choice(books)
 
 if __name__ == "__main__":
-    #books = load_books()
-    #title = input("Enter book title: ")
-    #print(get_summary_by_title(title, books))
-
-    #results = retrieve_books("friendship and magic")
-
-    #print(results)
-    #books = format_retrieved_books(results)
-
-    #print(books)
-
-     #test for build_prompt
-    """ user_query = "I want a book about friendship and magic"
-
-    results = retrieve_books(user_query)
-    books = format_retrieved_books(results)
-    prompt = build_prompt(user_query, books)
-
-    print(prompt) """
-    # test for get_book_recommendation
-    """ user_query = "I want a book about friendship and magic"
-
-    results = retrieve_books(user_query)
-    books = format_retrieved_books(results)
-    prompt = build_prompt(user_query, books)
-    recommendation = get_book_recommendation(prompt)
-
-    print(recommendation)
-    """
-    # test for extract_recommended_title and get_summary_by_title integration
-    """  user_query = "I want a book about friendship and magic"
-
-    results = retrieve_books(user_query)
-    books = format_retrieved_books(results)
-    prompt = build_prompt(user_query, books)
-    recommendation = get_book_recommendation(prompt)
-
-    print("Recommendation:")
-    print(recommendation)
-
-    title = extract_recommended_title(recommendation)
-
-    if title:
-        full_summary = get_summary_by_title(title, load_books())
-        print("\nDetailed summary:")
-        print(full_summary)
-    else:
-        print("\nCould not extract the recommended title.")
-     """
-    
-    # Final integration test with user input
-    """ books_data = load_books()
-
-    user_query = input("Ask for a book recommendation: ")
-
-    if not user_query:
-        print("Please enter a valid query.")
-    else:    
-        results = retrieve_books(user_query)
-        books = format_retrieved_books(results)
-
-        if not books:
-            print("No relevant books found for your query.")
-        else:
-            prompt = build_prompt(user_query, books)
-            recommendation = get_book_recommendation(prompt)
-
-            print("\nRecommendation:")
-            print(recommendation)
-
-            title = extract_recommended_title(recommendation)
-
-            if title:
-                full_summary = get_summary_by_title(title, books_data)
-                print("\nDetailed summary:")
-                print(full_summary)
-            else:
-                print("\nCould not extract the recommended title.") """
     books_data = load_books()
-    user_query = input("Ask for a book recommendation: ").strip()
 
-    if not user_query:
-        print("Please enter a valid question.")
-    else:
-        answer = run_book_assistant(user_query, books_data)
-        print("\nAssistant response:\n")
-        print(answer)
+    print("=" * 50)
+    print("📚 SMART LIBRARIAN")
+    print("=" * 50)
+
+    while True:
+        user_query = input("\nAsk for a book recommendation (or type 'exit'): ").strip()
+
+        if user_query.lower() in ["exit", "quit"]:
+            print("Goodbye!")
+            break
+
+        if not user_query:
+            print(":( Please enter a valid question.")
+            continue
+
+        if len(user_query) < 5:
+            print(":( Please provide a more detailed request.")
+            continue
+
+        if contains_inappropriate_language(user_query):
+            print(":/ Please use respectful language.")
+            continue
+
+        try:
+            answer = run_book_assistant(user_query, books_data)
+
+            if not answer:
+                print("⚠️ No response received. Please try again.")
+                continue
+
+            # fallback dacă API nu merge
+            if "Could not connect" in answer:
+                print("\n⚠️ Using retrieval-based fallback recommendation...\n")
+
+                results = retrieve_books(user_query)
+
+                if results:
+                    books = format_retrieved_books(results)
+                    fallback_book = fallback_from_retrieval(books)
+
+                    if fallback_book:
+                        print("=" * 50)
+                        print("📚 FALLBACK RECOMMENDATION")
+                        print("=" * 50)
+                        print(f"I recommend {fallback_book['title']} based on your interests.")
+
+                        print("\n📖 Summary:")
+                        print(fallback_book["summary"])
+                    else:
+                        print("No fallback recommendation available.")
+                else:
+                    print("Could not retrieve fallback data.")
+
+                continue
+
+            # output normal
+            print("\n" + "=" * 50)
+            print("📚 RECOMMENDATION")
+            print("=" * 50)
+            print(answer)
+
+        except Exception as e:
+            print("\n:( An unexpected error occurred.")
+            print("Details:", str(e))
+            print("Please try again.")
