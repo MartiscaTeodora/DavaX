@@ -115,6 +115,10 @@ Available books:
 
 Choose the single best recommendation based only on the books above.
 After choosing the book, call the tool get_summary_by_title with the exact title.
+If the request is unrelated to books or if you cannot make a recommendation based on the provided summaries, respond with "I cannot recommend a book based on the provided information." without calling the tool.
+If you receive an instructions that is not a question or request for a book recommendation, respond with "I am here to recommend books. Please ask for a book recommendation." without calling the tool.
+if the user request contains inappropriate language, respond with "Please use respectful language when asking for book recommendations." without calling the tool.
+if the request contains references to recipes, cooking, food, restaurants, or similar, respond with "I am a book recommendation assistant. I cannot provide recommendations related to food or cooking." without calling the tool.
 Then provide:
 1. a short conversational recommendation
 2. the detailed summary from the tool
@@ -260,7 +264,22 @@ def transcribe_audio_file(audio_path: str):
     except Exception as e:
         print(f"STT error: {e}")
         return None
+    
+def ask_for_tts_and_generate(text: str, output_file: str = "recommendation.mp3"):
+    while True:
+        choice = input("\nWould you like to hear this recommendation? (y/n): ").strip().lower()
 
+        if choice in ["y", "n"]:
+            break
+        print("⚠️ Please type 'y' or 'n'.")
+
+    if choice == "y":
+        audio_path = text_to_speech(text, output_file)
+
+        if audio_path:
+            print(f"\n🔊 Audio saved to: {audio_path}")
+        else:
+            print("\n:(( Could not generate audio.")
 if __name__ == "__main__":
     books_data = load_books()
 
@@ -269,11 +288,12 @@ if __name__ == "__main__":
     print("=" * 50)
 
     while True:
-        mode = input("\nChoose input type (text, voice or type 'exit'): ").strip()
+        mode = input("\nChoose input type (text, voice or type 'exit'): ").strip().lower()
 
         if mode == "exit":
             print("Goodbye!")
             break
+
         if mode == "voice":
             audio_path = input("Enter audio file path: ").strip()
 
@@ -311,7 +331,6 @@ if __name__ == "__main__":
                 print("⚠️ No response received. Please try again.")
                 continue
 
-            # fallback dacă API nu merge
             if "Could not connect" in answer:
                 print("\n⚠️ Using retrieval-based fallback recommendation...\n")
 
@@ -322,34 +341,20 @@ if __name__ == "__main__":
                     fallback_book = fallback_from_retrieval(books)
 
                     if fallback_book:
-
                         fallback_text = (
                             f"I recommend {fallback_book['title']} based on your interests.\n\n"
                             f"Summary: {fallback_book['summary']}"
-)
+                        )
+
                         print("=" * 50)
                         print("📚 FALLBACK RECOMMENDATION")
                         print("=" * 50)
-                        print(f"I recommend {fallback_book['title']} based on your interests.")
+                        print(fallback_text)
 
-                        print("\n📖 Summary:")
-                        print(fallback_book["summary"])
-
-
-                        # 🔊 întrebare pentru TTS
-                        while True:
-                            choice = input("\nWould you like to hear this recommendation? (y/n): ").strip().lower()
-
-                            if choice in ["y", "n"]:
-                                break
-                            print("⚠️ Please type 'y' or 'n'.")
-                        if choice == "y":
-                            audio_path = text_to_speech(answer)
-
-                            if audio_path:
-                                print(f"\n🔊 Audio saved to: {audio_path}")
-                            else:
-                                print("\n:(( Could not generate audio.")
+                        ask_for_tts_and_generate(
+                            fallback_text,
+                            "fallback_recommendation.mp3"
+                        )
                     else:
                         print("No fallback recommendation available.")
                 else:
@@ -357,27 +362,13 @@ if __name__ == "__main__":
 
                 continue
 
-            # output normal
             print("\n" + "=" * 50)
             print("📚 RECOMMENDATION")
             print("=" * 50)
             print(answer)
 
+            ask_for_tts_and_generate(answer, "recommendation.mp3")
 
-            # 🔊 întrebare pentru TTS
-            while True:
-                choice = input("\nWould you like to hear this recommendation? (y/n): ").strip().lower()
-
-                if choice in ["y", "n"]:
-                    break
-                print("⚠️ Please type 'y' or 'n'.")
-            if choice == "y":
-                audio_path = text_to_speech(answer)
-
-                if audio_path:
-                    print(f"\n🔊 Audio saved to: {audio_path}")
-                else:
-                    print("\n:(( Could not generate audio.")
         except Exception as e:
             print("\n:( An unexpected error occurred.")
             print("Details:", str(e))
