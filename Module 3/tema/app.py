@@ -244,6 +244,23 @@ def text_to_speech(text: str, output_file: str = "recommendation.mp3"):
     except APIConnectionError:
         return None
 
+def transcribe_audio_file(audio_path: str):
+    try:
+        with open(audio_path, "rb") as audio_file:
+            transcription = client.audio.transcriptions.create(
+                model="gpt-4o-mini-transcribe",
+                file=audio_file
+            )
+
+        return transcription.text
+
+    except FileNotFoundError:
+        return None
+
+    except Exception as e:
+        print(f"STT error: {e}")
+        return None
+
 if __name__ == "__main__":
     books_data = load_books()
 
@@ -252,11 +269,28 @@ if __name__ == "__main__":
     print("=" * 50)
 
     while True:
-        user_query = input("\nAsk for a book recommendation (or type 'exit'): ").strip()
+        mode = input("\nChoose input type (text, voice or type 'exit'): ").strip()
 
-        if user_query.lower() in ["exit", "quit"]:
+        if mode == "exit":
             print("Goodbye!")
             break
+        if mode == "voice":
+            audio_path = input("Enter audio file path: ").strip()
+
+            user_query = transcribe_audio_file(audio_path)
+
+            if not user_query:
+                print("⚠️ Could not transcribe the audio file.")
+                continue
+
+            print(f"\n📝 Transcribed text: {user_query}")
+
+        elif mode == "text":
+            user_query = input("Ask for a book recommendation: ").strip()
+
+        else:
+            print("⚠️ Please choose 'text', 'voice', or 'exit'.")
+            continue
 
         if not user_query:
             print(":( Please enter a valid question.")
@@ -302,8 +336,20 @@ if __name__ == "__main__":
                         print(fallback_book["summary"])
 
 
-                        audio_path = text_to_speech(fallback_text, "fallback_recommendation.mp3")
-                        print(f"\n🔊 Audio saved to: {audio_path}")
+                        # 🔊 întrebare pentru TTS
+                        while True:
+                            choice = input("\nWould you like to hear this recommendation? (y/n): ").strip().lower()
+
+                            if choice in ["y", "n"]:
+                                break
+                            print("⚠️ Please type 'y' or 'n'.")
+                        if choice == "y":
+                            audio_path = text_to_speech(answer)
+
+                            if audio_path:
+                                print(f"\n🔊 Audio saved to: {audio_path}")
+                            else:
+                                print("\n:(( Could not generate audio.")
                     else:
                         print("No fallback recommendation available.")
                 else:
@@ -318,9 +364,20 @@ if __name__ == "__main__":
             print(answer)
 
 
-            audio_path = text_to_speech(answer)
-            print(f"\n🔊 Audio saved to: {audio_path}")
+            # 🔊 întrebare pentru TTS
+            while True:
+                choice = input("\nWould you like to hear this recommendation? (y/n): ").strip().lower()
 
+                if choice in ["y", "n"]:
+                    break
+                print("⚠️ Please type 'y' or 'n'.")
+            if choice == "y":
+                audio_path = text_to_speech(answer)
+
+                if audio_path:
+                    print(f"\n🔊 Audio saved to: {audio_path}")
+                else:
+                    print("\n:(( Could not generate audio.")
         except Exception as e:
             print("\n:( An unexpected error occurred.")
             print("Details:", str(e))
