@@ -40,7 +40,7 @@ def ask_for_tts_and_generate(text: str, output_file: str = "recommendation.mp3")
         choice = input("\nWould you like to hear this response? (y/n): ").strip().lower()
         if choice in ["y", "n"]:
             break
-        print("⚠️ Please type 'y' or 'n'.")
+        print(" Please type 'y' or 'n'.")
 
     if choice == "y":
         audio_path = text_to_speech(text, output_file)
